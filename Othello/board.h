@@ -23,11 +23,6 @@
 
 using namespace std;
 
-typedef struct {
-	int x;
-	int y;
-}Piece;
-
 class Board{
 	public:
 		Board();
@@ -36,28 +31,21 @@ class Board{
 		hashmap moves;
 		int currentPlayer;
 		int score[3];
-		void Print(hashmap &moves);
+		int pass[3];
+		int Print(hashmap &moves);
 		bool legalChoice(int y, int x);
 		void LegalMoves(int player, hashmap &moves);
 		void GenerateViableMoves(int Direction[], int curPlayer, int X, int Y, list<int> flip, hashmap &flippablePieces);
 		void applyMove(int mvchoice, hashmap &moves);
-
+		void clear(hashmap &moves);
 		list<int> pastMoves;	
 		int pieceCounter;
 		list<int> flipMoves;	
-//		void Print(unordered_map<int, list<int>> moves, int player);
-		//void LegalMoves(int player, unordered_map<int, list<int>> &moves);
-		//bool NextPlayer(bool currentPlayer);
-
-		//int currentPlayer;
-		//list<int> pastMoves;//list of moves in a game;
-		//int pieceCounter;
-		
+		bool TerminalTest(hashmap &moves);	
 	private:
 		int board[BOARDSIZE][BOARDSIZE];
 		
 		//bool playerPassed;
-		//int score[3];
 };
 
 
