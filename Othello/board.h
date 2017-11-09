@@ -15,11 +15,15 @@
 
 #define BOARDSIZE 8
 
-#define RESET	"\033[0m"
-#define RED		"\033[31m"
-#define GREEN	"\033[32m"
-#define YELLOW	"\033[33m"
-#define BLUE	"\033[34m"
+#define RESET	"\033[4;0m"
+#define fBLACK	"\033[4;30m"
+#define fRED	"\033[31m"
+#define fGREEN	"\033[4;32m"
+#define fYELLOW	"\033[33m"
+#define fBLUE	"\033[34m"
+#define fWHITE	"\033[4;37m"
+#define bGREEN	"\033[4;42m"
+#define bWHITE	"\033[47m"
 
 using namespace std;
 
@@ -47,7 +51,13 @@ class Board{
 		
 		//bool playerPassed;
 };
-
-
+/*
+class Player{
+	public:
+	Player();
+		
+	bool BlacktPlayer;
+	bool
+*/
 #endif
 

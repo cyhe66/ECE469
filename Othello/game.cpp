@@ -11,6 +11,7 @@ using namespace std;
 
 int main(int argc, char** argv){
 	Board b;
+	string userInput; 
 	int mvchoice;
 
 	while(!b.TerminalTest(b.moves)){
@@ -19,6 +20,8 @@ int main(int argc, char** argv){
 		int choice = b.Print(b.moves);
 		if ( choice == 0) {
 			cout << "No Valid Moves. Turn Skipped! Please press 0" <<endl;
+
+//			getline(cin, userInput);
 			cin >> mvchoice; 
 			while (mvchoice != 0){
 				cout << "No Valid Moves. Turn Skipped! Please press 0" <<endl;
@@ -31,11 +34,15 @@ int main(int argc, char** argv){
 			continue;
 		}
 		cout <<"Which move do you wish to pick? Pick (1-"<<choice<<")"<<endl;
+		cout <<"-----------------------------------------------------"<<endl;
+		cout <<"Picked Move: ";
 		cin >> mvchoice;
-		while ( mvchoice < 0 || mvchoice > choice){
-			cout<<mvchoice<< " is not a valid move. Which move do you wish to pick? Pick (1-"<<choice<<")"<<endl;	
+		while ( mvchoice <= 0 || mvchoice > choice ||cin.fail()){
+			cout<<"Input is not a valid move. Which move do you wish to pick? Pick (1-"<<choice<<")"<<endl;	
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cin >> mvchoice;	
 		}
-		b.applyMove(mvchoice, b.moves);
+		b.applyMove(mvchoice, b.moves);	
 	}	
 }

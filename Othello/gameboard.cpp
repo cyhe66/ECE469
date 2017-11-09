@@ -34,35 +34,44 @@ bool Board::legalChoice(int y, int x){
 int Board::Print(unordered_map<int, list<int>> &moves){
 
 	//print out the board UI
-	cout << "  01234567" << endl;
-	cout << " ---------" << endl;
+	cout << "  0 1 2 3 4 5 6 7" << endl;
+	cout << " -----------------" << endl;
 	int choice = 1;
 
 	for (int ii = 0; ii < BOARDSIZE; ii++){
 		cout << alphabet[ii] << "|";
 		for (int jj = 0; jj < BOARDSIZE; jj++){
-			cout<<board[ii][jj];
+			if (board[ii][jj] == WHITE){
+				cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
+			}
+			else if (board[ii][jj] == BLACK){
+				cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
+			}
+			else {
+				cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
+			}
 		}
-		cout << endl;
+		cout << RESET << endl;
 	}//print user move stuff
-	cout << "Current Player: " << ((currentPlayer == WHITE) ? "White(1)" : "Black(2)") << endl;
-	cout<< "Black Pieces: " << score[BLACK] <<endl;
-	cout<< "White Pieces: "<< score[WHITE] <<endl;
-	cout<<"----------------------------------"<<endl;
+	cout<<fRED "*************************"<<endl;
+	cout<<fRED "Current Player: " << ((currentPlayer == WHITE) ? "White(1)" : "Black(2)") << endl;
+	cout<<fRED "Black Pieces: " << score[BLACK] <<endl;
+	cout<<fRED "White Pieces: "<< score[WHITE] <<endl;
+	cout<<"*************************"<<RESET<<endl;
 	for (auto mv : moves){
 		int piece = mv.first;	//piece == 34
 		int ii = piece / 10;// extract "3"
 		int jj = piece % 10;// extract "4"
-		cout<< "Possible Move "<< choice<< ": "<< alphabet[ii] << jj<<"\t ";
+		cout<< "Possible Move "<< choice<< ": "<< fBLUE << alphabet[ii] << jj<<RESET<<"\t ";
 		cout<< " Pieces to be flipped: ";
 		list<int> l = mv.second;
 
 		for (auto k : l){ 
 			int i = k / 10;
 			int j = k % 10;  
-			cout << alphabet[i] << j << " ";
+			cout <<fYELLOW<< alphabet[i] << j << " ";
 		}
-		cout << endl;
+		cout <<RESET<<  endl;
 		choice++;
 	}
 	return choice - 1;
@@ -188,16 +197,68 @@ void Board::clear(unordered_map<int, list<int>> &moves){
 
 bool Board::TerminalTest(unordered_map<int, list<int>> &moves){
 	if (score[BLACK] == 0 || score [WHITE] == 0){// one of the players has no pieces 
-		cout << "Game is Over!"<<endl;
-		return true;
+		cout << "PLAYER DOMINATION: Game is Over!"<<endl;
+		//PRINT FINAL BOARD
+		cout << "  0 1 2 3 4 5 6 7" << endl;
+		cout << " -----------------" << endl;
+		int choice = 1;
 
+		for (int ii = 0; ii < BOARDSIZE; ii++){
+			cout << alphabet[ii] << "|";
+			for (int jj = 0; jj < BOARDSIZE; jj++){
+				if (board[ii][jj] == WHITE){
+					cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
+				}
+				else if (board[ii][jj] == BLACK){
+					cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
+				}
+				else {
+					cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
+				}
+			}
+			cout << RESET << endl;
+		}//print user move stuff
+		return true;
 	}
 	if (score[BLACK] + score[WHITE] == 64){
-		cout << "Game is Over!"<<endl;
+		cout << "BOARD FILLED:Game is Over!"<<endl;
+		//PRINT FINAL BOARD
+		for (int ii = 0; ii < BOARDSIZE; ii++){
+			cout << alphabet[ii] << "|";
+			for (int jj = 0; jj < BOARDSIZE; jj++){
+				if (board[ii][jj] == WHITE){
+					cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
+				}
+				else if (board[ii][jj] == BLACK){
+					cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
+				}
+				else {
+					cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
+				}
+			}
+			cout << RESET << endl;
+		}//print user move stuff
+
 		return true; 
 	}
 	if (pass[BLACK] ==1 && pass[WHITE] == 1){
 		cout << "Both Players Passed! Game Over"<< endl;
+		//PRINT FINAL BOARD
+		for (int ii = 0; ii < BOARDSIZE; ii++){
+			cout << alphabet[ii] << "|";
+			for (int jj = 0; jj < BOARDSIZE; jj++){
+				if (board[ii][jj] == WHITE){
+					cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
+				}
+				else if (board[ii][jj] == BLACK){
+					cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
+				}
+				else {
+					cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
+				}
+			}
+			cout << RESET << endl;
+		}//print user move stuff
 		return true;
 	}
 	else{
