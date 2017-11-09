@@ -140,7 +140,7 @@ void Board::applyMove(int mvchoice, unordered_map<int, list<int>> &moves){
 	int count = 1;
 
 //check for valid input
-	if (!moves.clear()){//while the hash table is not empty
+	if (mvchoice != 0){//while the hash table is not empty
 		for (auto mv : moves){
 			if (count == mvchoice){
 				output = mv.first;	
@@ -157,7 +157,6 @@ void Board::applyMove(int mvchoice, unordered_map<int, list<int>> &moves){
 		score[currentPlayer]++;
 		pastMoves.push_back(output);
 
-
 		//apply all flips
 		for (int n : flipMoves){	
 			int y = n / 10;
@@ -169,15 +168,17 @@ void Board::applyMove(int mvchoice, unordered_map<int, list<int>> &moves){
 		score[currentPlayer] += flipMoves.size();
 		score[oppositePlayer] -= flipMoves.size();
 	// switch the current player, wipe the hash table	
-		pass[currentPlayer] = 0;
+		pass[currentPlayer] = 0;//set the pass player to 0, no passes here!
 		currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
 		return;
 	}
-	if(moves.clear()){//if the hash table is empty, done even apply any moves and just skip
-		pass[currentPlayer] = 1
+	if(mvchoice == 0){//if the hash table is empty, dont even apply any moves and just skip
+		cout << "No moves, player : " << currentPlayer <<"  skipped. " <<endl;
+		pass[currentPlayer] = 1;
 		currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
 	
-}	
+	}	
+}
 
 void Board::clear(unordered_map<int, list<int>> &moves){
 	moves.clear();	
@@ -187,9 +188,19 @@ void Board::clear(unordered_map<int, list<int>> &moves){
 
 bool Board::TerminalTest(unordered_map<int, list<int>> &moves){
 	if (score[BLACK] == 0 || score [WHITE] == 0){// one of the players has no pieces 
+		cout << "Game is Over!"<<endl;
 		return true;
+
 	}
 	if (score[BLACK] + score[WHITE] == 64){
+		cout << "Game is Over!"<<endl;
 		return true; 
+	}
+	if (pass[BLACK] ==1 && pass[WHITE] == 1){
+		cout << "Both Players Passed! Game Over"<< endl;
+		return true;
+	}
+	else{
+		return false;
 	}
 }
