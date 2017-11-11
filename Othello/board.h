@@ -9,7 +9,7 @@
 #include <unordered_map>
 #include <list>
 #include <tuple>
-
+#include <string.h>
 #define WHITE 1
 #define BLACK 2
 
@@ -30,8 +30,15 @@ using namespace std;
 class Board{
 	public:
 		Board();
-
 		typedef unordered_map<int, list<int>> hashmap;	
+
+
+		//gameMode optino parsing
+		int gameMode;// 0 P2P ;; 1 C2P ;; 2 C;;C
+		bool whiteIsHuman;
+		bool blackIsHuman;
+		int playAs; // 0 for black, 1 for white
+
 		hashmap moves;
 		int currentPlayer;
 		int score[3];
@@ -46,9 +53,12 @@ class Board{
 		int pieceCounter;
 		list<int> flipMoves;	
 		bool TerminalTest(hashmap &moves);	
+		void LoadBoard();
+		void SaveBoard(string pathname);
+			
 	private:
 		int board[BOARDSIZE][BOARDSIZE];
-		
+		void PrintEndScreen();	
 		//bool playerPassed;
 };
 /*

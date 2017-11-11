@@ -2,6 +2,7 @@
 #include <tuple>
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 #include <vector>
 #include <list>
@@ -22,10 +23,11 @@ Board::Board(){
 	//create start signals
 	score[BLACK] = 2;
 	score[WHITE] = 2;
+	pass[WHITE] = 0;
+	pass[BLACK] = 0;
 	currentPlayer = BLACK;
 	pieceCounter = 4;
 }
-
 
 bool Board::legalChoice(int y, int x){
 	return (x >= 0) && (x < BOARDSIZE) && (y >= 0) && (y < BOARDSIZE); 
@@ -194,6 +196,30 @@ void Board::clear(unordered_map<int, list<int>> &moves){
 	return;
 }
 
+void Board::PrintEndScreen(){
+	for (int ii = 0; ii < BOARDSIZE; ii++){
+		cout << alphabet[ii] << "|";
+		for (int jj = 0; jj < BOARDSIZE; jj++){
+			if (board[ii][jj] == WHITE){
+				cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
+			}
+			else if (board[ii][jj] == BLACK){
+				cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
+			}
+			else {
+				cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
+			}
+		}
+		cout << RESET << endl;
+	}
+	cout << " ######################################### " << endl;
+	cout << " ######################################### " << endl;
+	cout << " The " << (currentPlayer == BLACK ? "White" : "Black") << " Player Wins!" << endl;
+	cout << " Winner: " << (currentPlayer == BLACK ? "White" : "Black");
+	cout << " with score: " << (currentPlayer == BLACK ? score[WHITE] : score[BLACK]) << endl; 
+	cout << " ######################################### " << endl;
+	cout << " ######################################### " << endl;
+}
 
 bool Board::TerminalTest(unordered_map<int, list<int>> &moves){
 	if (score[BLACK] == 0 || score [WHITE] == 0){// one of the players has no pieces 
@@ -202,66 +228,48 @@ bool Board::TerminalTest(unordered_map<int, list<int>> &moves){
 		cout << "  0 1 2 3 4 5 6 7" << endl;
 		cout << " -----------------" << endl;
 		int choice = 1;
-
-		for (int ii = 0; ii < BOARDSIZE; ii++){
-			cout << alphabet[ii] << "|";
-			for (int jj = 0; jj < BOARDSIZE; jj++){
-				if (board[ii][jj] == WHITE){
-					cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
-				}
-				else if (board[ii][jj] == BLACK){
-					cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
-				}
-				else {
-					cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
-				}
-			}
-			cout << RESET << endl;
-		}//print user move stuff
+		PrintEndScreen();
 		return true;
 	}
 	if (score[BLACK] + score[WHITE] == 64){
 		cout << "BOARD FILLED:Game is Over!"<<endl;
-		//PRINT FINAL BOARD
-		for (int ii = 0; ii < BOARDSIZE; ii++){
-			cout << alphabet[ii] << "|";
-			for (int jj = 0; jj < BOARDSIZE; jj++){
-				if (board[ii][jj] == WHITE){
-					cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
-				}
-				else if (board[ii][jj] == BLACK){
-					cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
-				}
-				else {
-					cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
-				}
-			}
-			cout << RESET << endl;
-		}//print user move stuff
-
+		PrintEndScreen();
 		return true; 
 	}
 	if (pass[BLACK] ==1 && pass[WHITE] == 1){
 		cout << "Both Players Passed! Game Over"<< endl;
-		//PRINT FINAL BOARD
-		for (int ii = 0; ii < BOARDSIZE; ii++){
-			cout << alphabet[ii] << "|";
-			for (int jj = 0; jj < BOARDSIZE; jj++){
-				if (board[ii][jj] == WHITE){
-					cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
-				}
-				else if (board[ii][jj] == BLACK){
-					cout<< bGREEN << fBLACK << board[ii][jj] << fBLACK <<"|"<< RESET;	
-				}
-				else {
-					cout << bGREEN << fGREEN<< board[ii][jj] << fBLACK <<"|"<< RESET;
-				}
-			}
-			cout << RESET << endl;
-		}//print user move stuff
+		PrintEndScreen();
 		return true;
 	}
-	else{
+	else{// not a Terminal State
 		return false;
 	}
+}
+
+void Board::SaveBoard(string pathname){
+	//0-63 is the board 	
+	//64 is the current player
+	//65-66 is the pass states
+	vector<int> saveboard;
+
+	for (int ii = 0; ii < BOARDSIZE; ii++){ // load the board into saveboard
+		for (int jj = 0; jj < BOARDSIZE; jj++){	
+			saveboard.push_back(board[ii][jj]);
+		}
+	}
+	saveboard.push_back(currentPlayer);
+	saveboard.push_back(pass[BLACK]);
+	saveboard.push_back(pass[WHITE]);	
+	
+	ofstream filestrm;
+	filestrm.open(pathname);	
+	for (int n : saveboard){
+		filestrm << n;
+	} 
+/*
+	cout << "The saveboard looks like this: ";
+	for (int n : saveboard){	
+		cout << n;
+*/
+	cout << endl << "Game Saved." << endl;
 }
