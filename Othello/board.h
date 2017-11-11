@@ -53,7 +53,7 @@ class Board{
 		int pieceCounter;
 		list<int> flipMoves;	
 		bool TerminalTest(hashmap &moves);	
-		void LoadBoard();
+		void LoadBoard(string pathname);
 		void SaveBoard(string pathname);
 			
 	private:

@@ -41,7 +41,7 @@ int Board::Print(unordered_map<int, list<int>> &moves){
 	int choice = 1;
 
 	for (int ii = 0; ii < BOARDSIZE; ii++){
-		cout << alphabet[ii] << "|";
+		cout << alphabet[ii] <<bGREEN << fBLACK << "|";
 		for (int jj = 0; jj < BOARDSIZE; jj++){
 			if (board[ii][jj] == WHITE){
 				cout<< bGREEN << fWHITE << board[ii][jj] << fBLACK <<"|"<< RESET;	
