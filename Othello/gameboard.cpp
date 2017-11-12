@@ -358,8 +358,37 @@ void Board::HumanMove(){
 }
 
 void Board::AIMove(){
+	int ai_mvchoice;
+	int count = 1;
+	int output;
 
-
-
-
+	clear(moves); 
+	LegalMoves(currentPlayer,moves);
+	ai_mvchoice = randomAI( moves);	
+	if (ai_mvchoice != 0){//while the hash table is not empty
+		for (auto mv : moves){
+			if (count == ai_mvchoice){
+				output = mv.first;	
+			}
+			count ++;
+		}
+	}
+	int ii = output /10;
+	int jj = output %10;
+	cout <<"The AI makes move: " fRED <<alphabet[ii]<<jj<< RESET<<endl;
+	applyMove(ai_mvchoice, moves);
 }
+
+
+/*************************************************************************
+*RANDOM AI TEST CASE
+*************************************************************************/	
+
+int Board::randomAI( unordered_map<int, list<int>> &moves){
+	if (moves.empty()){
+		return 0;
+	}
+	int randomchoice = rand() % moves.size() + 1;// 0 - xx elements		
+	return randomchoice;
+}
+	

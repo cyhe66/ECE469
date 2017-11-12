@@ -56,6 +56,7 @@ class Board{
 		void SaveBoard(string pathname);
 		void HumanMove();
 		void AIMove();		
+		int randomAI(hashmap &moves);
 	private:
 		int board[BOARDSIZE][BOARDSIZE];
 		void PrintEndScreen();	

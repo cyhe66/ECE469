@@ -50,7 +50,7 @@ int main(int argc, char** argv){
 			cin >> playAs;
 		}
 		b.whiteIsHuman = (playAs == 1) ? true : false;
-		b.blackIsHuman = (playAs == 2) ? true : false;
+		b.blackIsHuman = (playAs == 0) ? true : false;
 	}
 	else {	//b.gameMode == 2A
 		b.whiteIsHuman = false;
@@ -59,7 +59,8 @@ int main(int argc, char** argv){
 	/*****************************************************
 	Option to LOAD in a saved gamestate
 	*****************************************************/
-	cout <<" Do you wish to load in a saved game state? Enter 0 to continue, or 1 to load a saved game: ";
+	cout <<"Do you wish to load in a saved game state? Enter 1 to load a saved game, else press 0: "<< endl;
+
 	cin >> saveGame;
 	while (saveGame < 0 || saveGame > 1 || cin.fail()){
 		cout<< "Input not recognized. Do you wish to load in a saved game state? Enter 0 to continue, or 1 to load a saved game:"<<endl;
@@ -79,21 +80,19 @@ int main(int argc, char** argv){
 
 	while(!b.TerminalTest(b.moves)){
 		if (b.currentPlayer == BLACK){
-			//black to move - whether it calls the human move or the A.I move
 			if(b.blackIsHuman){
 				b.HumanMove();
 			}
 			else{
-				//call the A.I move syntax
+				b.AIMove();
 			}
 		}
 		else if (b.currentPlayer == WHITE){
-			//white to move- whether it calls the human move or the A.I move
 			if(b.whiteIsHuman){
 				b.HumanMove();
 			}
 			else{
-				//call the AI move syntax
+				b.AIMove();
 			}
 		}
 	}
