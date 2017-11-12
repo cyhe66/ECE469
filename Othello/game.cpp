@@ -13,6 +13,7 @@ int main(int argc, char** argv){
 	Board b;
 	//Player p;
 	string userInput; 
+	string loadInput;
 	int saveGame;
 	int mvchoice;
 	int playAs;
@@ -61,16 +62,17 @@ int main(int argc, char** argv){
 	cout <<" Do you wish to load in a saved game state? Enter 0 to continue, or 1 to load a saved game: ";
 	cin >> saveGame;
 	while (saveGame < 0 || saveGame > 1 || cin.fail()){
-		cout<< "Input not recognized. Do you wish to play as Black or White? Pick 0 for Black and 1 for White:"<<endl;
+		cout<< "Input not recognized. Do you wish to load in a saved game state? Enter 0 to continue, or 1 to load a saved game:"<<endl;
 		cin.clear();
 		cin.ignore(numeric_limits<streamsize>::max(), '\n');
 		cin >> saveGame;
 	}
+	if (saveGame == 1){
+		cout<< " Enter the name of the file which you want to load the board from: ";
+		cin >> loadInput;	
+		b.LoadBoard(loadInput);
+	}
 		
-
-
-
-
 
 	/*****************************************************
 	GAME LOOP
@@ -114,7 +116,7 @@ int main(int argc, char** argv){
 			cin.ignore(numeric_limits<streamsize>::max(), '\n');
 			cin >> mvchoice;	
 			if (mvchoice == 99){//user wants to save a game
-				cout << " Enter the filepath at which you want to store the board: ";
+				cout << " Enter the filename which you want to store the board: ";
 				cin >> userInput;
 				b.SaveBoard(userInput);
 				continue;

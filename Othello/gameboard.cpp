@@ -273,3 +273,45 @@ void Board::SaveBoard(string pathname){
 */
 	cout << endl << "Game Saved." << endl;
 }
+	
+void Board::LoadBoard(string pathname){
+	//read in the file
+	ifstream instream;
+	instream.open(pathname);
+	string b_info;
+	if(!instream)
+	{
+		cout<< "Error occurred opening file"<<endl;
+	}
+	else {
+		cout << "File successfully opened"<< endl;
+	}
+	while(!instream.eof()){	
+		getline(instream, b_info);	//read information into string
+	}
+	instream.close();
+//	cout << b_info<< endl;
+//reset the score to zeroes
+	score[WHITE] = 0;	
+	score[BLACK] = 0;
+
+	for( int ii = 0; ii < BOARDSIZE; ii++){
+		for (int jj = 0; jj < BOARDSIZE; jj++){
+			board[ii][jj] = b_info[ii*8+jj] - 48;//some weird ascii arithmetic
+			if(b_info[ii*8+jj] - 48 == WHITE){
+				score[WHITE]++;		
+			}
+			if(b_info[ii*8+jj] - 48 == BLACK){
+				score[BLACK]++;
+			}
+		}
+	}
+	cout <<b_info[0]<<b_info[1]<<b_info[2]<<b_info[3]<<b_info[4]<<b_info[5]<<b_info[6]<<b_info[7]<<endl;
+
+	cout<<board[0][0]<<board[0][1]<<board[0][2]<<board[0][3]<<board[0][4]<<board[0][5]<<board[0][6]<<board[0][7]<<endl;
+	currentPlayer = b_info[64] - 48;
+	pass[BLACK] = b_info[65] - 48; 
+	pass[WHITE] = b_info[66] - 48;
+
+//pass through the string and reset the number of pieces per side
+} 

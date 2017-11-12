@@ -32,7 +32,6 @@ class Board{
 		Board();
 		typedef unordered_map<int, list<int>> hashmap;	
 
-
 		//gameMode optino parsing
 		int gameMode;// 0 P2P ;; 1 C2P ;; 2 C;;C
 		bool whiteIsHuman;
