@@ -57,7 +57,7 @@ int main(int argc, char** argv){
 		b.blackIsHuman = false;
 	}
 	/*****************************************************
-	Option to load in a saved gamestate
+	Option to LOAD in a saved gamestate
 	*****************************************************/
 	cout <<" Do you wish to load in a saved game state? Enter 0 to continue, or 1 to load a saved game: ";
 	cin >> saveGame;
@@ -72,7 +72,6 @@ int main(int argc, char** argv){
 		cin >> loadInput;	
 		b.LoadBoard(loadInput);
 	}
-		
 
 	/*****************************************************
 	GAME LOOP

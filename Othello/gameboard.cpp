@@ -245,7 +245,9 @@ bool Board::TerminalTest(unordered_map<int, list<int>> &moves){
 		return false;
 	}
 }
-
+/***************************************************************
+LOAD AND SAVE BOARD FUNCTIONALITY
+****************************************************************/
 void Board::SaveBoard(string pathname){
 	//0-63 is the board 	
 	//64 is the current player
@@ -266,16 +268,10 @@ void Board::SaveBoard(string pathname){
 	for (int n : saveboard){
 		filestrm << n;
 	} 
-/*
-	cout << "The saveboard looks like this: ";
-	for (int n : saveboard){	
-		cout << n;
-*/
 	cout << endl << "Game Saved." << endl;
 }
 	
 void Board::LoadBoard(string pathname){
-	//read in the file
 	ifstream instream;
 	instream.open(pathname);
 	string b_info;
@@ -290,8 +286,7 @@ void Board::LoadBoard(string pathname){
 		getline(instream, b_info);	//read information into string
 	}
 	instream.close();
-//	cout << b_info<< endl;
-//reset the score to zeroes
+	//reset the score to zeroes
 	score[WHITE] = 0;	
 	score[BLACK] = 0;
 
@@ -299,19 +294,14 @@ void Board::LoadBoard(string pathname){
 		for (int jj = 0; jj < BOARDSIZE; jj++){
 			board[ii][jj] = b_info[ii*8+jj] - 48;//some weird ascii arithmetic
 			if(b_info[ii*8+jj] - 48 == WHITE){
-				score[WHITE]++;		
+				score[WHITE]++;		//recalculate scores
 			}
 			if(b_info[ii*8+jj] - 48 == BLACK){
-				score[BLACK]++;
+				score[BLACK]++;		
 			}
 		}
 	}
-	cout <<b_info[0]<<b_info[1]<<b_info[2]<<b_info[3]<<b_info[4]<<b_info[5]<<b_info[6]<<b_info[7]<<endl;
-
-	cout<<board[0][0]<<board[0][1]<<board[0][2]<<board[0][3]<<board[0][4]<<board[0][5]<<board[0][6]<<board[0][7]<<endl;
 	currentPlayer = b_info[64] - 48;
 	pass[BLACK] = b_info[65] - 48; 
 	pass[WHITE] = b_info[66] - 48;
-
-//pass through the string and reset the number of pieces per side
 } 
