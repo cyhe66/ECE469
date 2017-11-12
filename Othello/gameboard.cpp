@@ -1,4 +1,8 @@
 #include <stdio.h>
+#include <limits>
+#include <string>
+#include <assert.h>
+#include <numeric>
 #include <tuple>
 #include <string.h>
 #include <iostream>
@@ -304,4 +308,58 @@ void Board::LoadBoard(string pathname){
 	currentPlayer = b_info[64] - 48;
 	pass[BLACK] = b_info[65] - 48; 
 	pass[WHITE] = b_info[66] - 48;
-} 
+}
+
+
+void Board::HumanMove(){ 
+	int mvchoice;
+	string userInput;
+	clear(moves);
+	LegalMoves(currentPlayer, moves);
+    int choice = Print(moves);
+    if ( choice == 0) {
+        cout << "No Valid Moves. Turn Skipped! Please press 0" <<endl;
+
+        cin >> mvchoice; 
+        while (mvchoice != 0){
+            cout << "No Valid Moves. Turn Skipped! Please press 0" <<endl;
+            cin >> mvchoice;
+        }
+        if (mvchoice == 0){
+            applyMove(mvchoice, moves);
+            clear(moves);
+        }
+        return;
+    }
+    cout <<"Which move do you wish to pick? Pick (1-"<<choice<<")";
+    cout <<", or pick (99) to save the game to a File." << endl;
+    cout <<"-----------------------------------------------------"<<endl;
+    cout <<"User picks: ";
+    cin >> mvchoice;
+    if (mvchoice == 99){//user wants to save a game
+        cout << " Enter the filepath at which you want to store the board: ";
+        cin >> userInput;
+        SaveBoard(userInput);
+        return;
+    }
+    while (mvchoice <= 0 || mvchoice > choice || cin.fail()){
+        cout<<"Input is not a valid move. Which move do you wish to pick? Pick (1-"<<choice<<")"<<endl; 
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cin >> mvchoice;    
+        if (mvchoice == 99){//user wants to save a game
+            cout << " Enter the filename which you want to store the board: ";
+            cin >> userInput;
+            SaveBoard(userInput);
+            return;
+        }
+    }
+    applyMove(mvchoice, moves); 
+}
+
+void Board::AIMove(){
+
+
+
+
+}

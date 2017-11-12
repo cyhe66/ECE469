@@ -54,7 +54,8 @@ class Board{
 		bool TerminalTest(hashmap &moves);	
 		void LoadBoard(string pathname);
 		void SaveBoard(string pathname);
-			
+		void HumanMove();
+		void AIMove();		
 	private:
 		int board[BOARDSIZE][BOARDSIZE];
 		void PrintEndScreen();	
@@ -65,8 +66,11 @@ class Player{
 	public:
 	Player();
 		
-	bool BlacktPlayer;
-	bool
+	int BlacktPlayer;
+	int WhitePlayer;
+
+}
+
 */
 #endif
 

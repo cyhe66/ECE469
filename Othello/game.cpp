@@ -12,10 +12,10 @@ using namespace std;
 int main(int argc, char** argv){
 	Board b;
 	//Player p;
-	string userInput; 
+	//string userInput; 
 	string loadInput;
 	int saveGame;
-	int mvchoice;
+	//int mvchoice;
 	int playAs;
 	
 	
@@ -78,50 +78,24 @@ int main(int argc, char** argv){
 	*****************************************************/	
 
 	while(!b.TerminalTest(b.moves)){
-		b.clear(b.moves);
-		b.LegalMoves(b.currentPlayer, b.moves);	
-		/*********************************************************************
-		for HUMAN CONSUMPTION
-		**********************************************************************/
-		int choice = b.Print(b.moves);
-		if ( choice == 0) {
-			cout << "No Valid Moves. Turn Skipped! Please press 0" <<endl;
-
-			cin >> mvchoice; 
-			while (mvchoice != 0){
-				cout << "No Valid Moves. Turn Skipped! Please press 0" <<endl;
-				cin >> mvchoice;
+		if (b.currentPlayer == BLACK){
+			//black to move - whether it calls the human move or the A.I move
+			if(b.blackIsHuman){
+				b.HumanMove();
 			}
-			if (mvchoice == 0){
-				b.applyMove(mvchoice, b.moves);
-				b.clear(b.moves);
-			}
-			continue;
-		}
-		cout <<"Which move do you wish to pick? Pick (1-"<<choice<<")";
-		cout <<", or pick (99) to save the game to a File." << endl;
-		cout <<"-----------------------------------------------------"<<endl;
-		cout <<"User picks: ";
-		cin >> mvchoice;
-		if (mvchoice == 99){//user wants to save a game
-			cout << " Enter the filepath at which you want to store the board: ";
-			cin >> userInput;
-			b.SaveBoard(userInput);
-			continue;
-		}
-		while (mvchoice <= 0 || mvchoice > choice || cin.fail()){
-			cout<<"Input is not a valid move. Which move do you wish to pick? Pick (1-"<<choice<<")"<<endl;	
-			cin.clear();
-			cin.ignore(numeric_limits<streamsize>::max(), '\n');
-			cin >> mvchoice;	
-			if (mvchoice == 99){//user wants to save a game
-				cout << " Enter the filename which you want to store the board: ";
-				cin >> userInput;
-				b.SaveBoard(userInput);
-				continue;
+			else{
+				//call the A.I move syntax
 			}
 		}
-		b.applyMove(mvchoice, b.moves);	
+		else if (b.currentPlayer == WHITE){
+			//white to move- whether it calls the human move or the A.I move
+			if(b.whiteIsHuman){
+				b.HumanMove();
+			}
+			else{
+				//call the AI move syntax
+			}
+		}
 	}
 }
 
