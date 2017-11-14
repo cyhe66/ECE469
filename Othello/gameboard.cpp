@@ -216,11 +216,20 @@ void Board::PrintEndScreen(){
 		}
 		cout << RESET << endl;
 	}
+	if ( score[BLACK] == score[WHITE]){
+		cout << " ######################################### " << endl;
+		cout << " ######################################### " << endl;
+		cout << " The GameBoard is Tied" << endl;
+		cout << " Black has score: " << score[BLACK] <<" and White has score: " << score[WHITE] << endl;
+		cout << " ######################################### " << endl;
+		cout << " ######################################### " << endl;
+	return;
+	}
 	cout << " ######################################### " << endl;
 	cout << " ######################################### " << endl;
-	cout << " The " << (currentPlayer == BLACK ? "White" : "Black") << " Player Wins!" << endl;
-	cout << " Winner: " << (currentPlayer == BLACK ? "White" : "Black");
-	cout << " with score: " << (currentPlayer == BLACK ? score[WHITE] : score[BLACK]) << endl; 
+	cout << " The " << (score[WHITE] > score[BLACK] ? "White" : "Black") << " Player Wins!" << endl;
+	cout << " Winner: " << (score[WHITE] > score[BLACK] ? "White" : "Black");
+	cout << " with score: " << (score[WHITE] > score[BLACK] ? score[WHITE] : score[BLACK]) << endl; 
 	cout << " ######################################### " << endl;
 	cout << " ######################################### " << endl;
 }
@@ -232,7 +241,6 @@ bool Board::TerminalTest(unordered_map<int, list<int>> &moves){
 		cout << "  0 1 2 3 4 5 6 7" << endl;
 		cout << " -----------------" << endl;
 		int choice = 1;
-		PrintEndScreen();
 		return true;
 	}
 	if (score[BLACK] + score[WHITE] == 64){
@@ -333,8 +341,8 @@ void Board::HumanMove(){
     }
     cout <<"Which move do you wish to pick? Pick (1-"<<choice<<")";
     cout <<", or pick (99) to save the game to a File." << endl;
-    cout <<"-----------------------------------------------------"<<endl;
     cout <<"User picks: ";
+    cout <<"-----------------------------------------------------"<<endl;
     cin >> mvchoice;
     if (mvchoice == 99){//user wants to save a game
         cout << " Enter the filepath at which you want to store the board: ";
@@ -391,4 +399,42 @@ int Board::randomAI( unordered_map<int, list<int>> &moves){
 	int randomchoice = rand() % moves.size() + 1;// 0 - xx elements		
 	return randomchoice;
 }
-	
+/*
+i need to also create a tree
+*/
+
+
+/*
+function minimax(node * parent)
+
+if parent depth == maxdepth
+	set parent value = to heuristic
+	return
+
+if in max
+set bool max = true
+set parent value to intmax
+
+if in min
+set bool max = false
+set parent value to intmax
+
+create temp node
+
+for (loop through legal moves)
+set board of parent = board of temp
+make the move on temp
+set all values for temp based on that move
+set temp as a child of parent
+
+call minimax(child)
+
+if ( max && parent->value < child -> value)
+swap the value of the parent with the child
+(do alphabeta check)
+
+if ( !max && parent -> value > child -> value)
+do swap
+do alpha-beta check
+
+*/	
