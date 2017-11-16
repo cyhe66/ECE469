@@ -6,6 +6,7 @@
 #define _BOARD_H_
 
 #include <vector>
+#include <limits.h>
 #include <unordered_map>
 #include <list>
 #include <tuple>
@@ -32,7 +33,7 @@ class Board{
 		Board();
 		typedef unordered_map<int, list<int>> hashmap;	
 
-		//gameMode optino parsing
+		//gameMode option parsing
 		int gameMode;
 		bool whiteIsHuman;
 		bool blackIsHuman;
@@ -42,36 +43,49 @@ class Board{
 		int currentPlayer;
 		int score[3];
 		int pass[3];
-		int Print(hashmap &moves);
-		bool legalChoice(int y, int x);
-		void LegalMoves(int player, hashmap &moves);
-		void GenerateViableMoves(int Direction[], int curPlayer, int X, int Y, list<int> flip, hashmap &flippablePieces);
-		void applyMove(int mvchoice, hashmap &moves);
-		void clear(hashmap &moves);
+		int Print();
+		void PrintSolo();
 		list<int> pastMoves;	
-		int pieceCounter;
 		list<int> flipMoves;	
-		bool TerminalTest(hashmap &moves);	
+		int pieceCounter;
+		
+		bool legalChoice(int y, int x);
+		void LegalMoves(int player);
+		void GenerateViableMoves(int Direction[], int curPlayer, int X, int Y, list<int> flip);
+		void applyMove(int mvchoice);
+		void applyMoveAI(int key);
+		void clear();
+		bool TerminalTest();	
 		void LoadBoard(string pathname);
 		void SaveBoard(string pathname);
 		void HumanMove();
 		void AIMove();		
-		int randomAI(hashmap &moves);
+		int randomAI();
+		pair<int, list<int>> AIv_One();
+		int get_board();
+		pair<int, pair<int, list<int>>> alphaBeta(int tempBoard[BOARDSIZE][BOARDSIZE], int maxDepth, int depth, int alpha, int beta, bool MaxingPlayer);
+		int OGplayer;
 	private:
-		int board[BOARDSIZE][BOARDSIZE];
 		void PrintEndScreen();	
+		int board[BOARDSIZE][BOARDSIZE];
 		//bool playerPassed;
 };
 /*
 class Player{
 	public:
-	Player();
-		
-	int BlacktPlayer;
-	int WhitePlayer;
+		Player();
+		int OGplayer;
+	private:
+	//	int bigNum = INT_MAX /2;
+*/		
 
-}
-
-*/
+class HeuristicEval{//heuristic subclass
+	public:
+		HeuristicEval();
+		static int Heuristic(int board[][BOARDSIZE], int player);	
+	
+	private:
+		static int simpleBoardWeightHeuristic(int board [][BOARDSIZE], int player);	
+};
 #endif
 

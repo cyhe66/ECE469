@@ -78,7 +78,7 @@ int main(int argc, char** argv){
 	GAME LOOP
 	*****************************************************/	
 
-	while(!b.TerminalTest(b.moves)){
+	while(!b.TerminalTest()){
 		if (b.currentPlayer == BLACK){
 			if(b.blackIsHuman){
 				b.HumanMove();
