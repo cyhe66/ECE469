@@ -33,6 +33,22 @@ Board::Board(){
 	pieceCounter = 4;
 }
 
+//copy constructor
+Board::Board(Board &b){
+	for (int ii = 0; ii < BOARDSIZE; ii++){
+		for (int jj = 0; jj < BOARDSIZE; jj++){
+			this->board[ii][jj] = b.board[ii][jj];
+		}
+	} 
+	for (int ii = 0; ii < 3; ii++){
+		this->score[ii] = b.score[ii];
+		this->pass[ii] = b.pass[ii];
+	}
+	this ->currentPlayer = b.currentPlayer;
+	this ->pieceCounter = b.pieceCounter;
+}
+
+
 bool Board::legalChoice(int y, int x){
 	return (x >= 0) && (x < BOARDSIZE) && (y >= 0) && (y < BOARDSIZE); 
 }
@@ -413,7 +429,7 @@ void Board::HumanMove(){
     applyMove(mvchoice); 
 }
 
-void Board::AIMove(){
+void Board::AIMove(Board board){
 /* this is for the randomAI
 	int ai_mvchoice;
 	int count = 1;
@@ -438,18 +454,39 @@ void Board::AIMove(){
 	PrintSolo();//just print the State of the Board
 	int ai_mvchoice;
 	clear();// clear the board hash table
-	pair<int,list<int>> AI_decision = AIv_One();//call AIv_One into a key, list pair
-	int piece_to_place = AI_decision.first;
-	flipMoves.clear();	
-	flipMoves = AI_decision.second;
+	Board child = board;
+	int bigNum = 1000000;	
+	pair<int,list<int>> moveToMake;
+	int alpha = -bigNum;
+	int beta = bigNum;
+	OGplayer = currentPlayer;
+	
+	//pair<int,list<int>> AI_decision = AIv_One();//call AIv_One into a key, list pair
+	//int piece_to_place = AI_decision.first;
+	//flipMoves.clear();	
+	//flipMoves = AI_decision.second;
+	for ( int depth = 1; depth < 4; depth++){
+		int bestVal = -bigNum;
+		cout <<"Searching at depth: " <<depth<<endl;	
+		
+		pair<int, pair<int,list<int>>> moveScore = alphaBeta(child, depth, depth, alpha, beta, true, OGplayer);
+		bestVal = moveScore.first; // of type int -- is the weighted value
+		moveToMake = moveScore.second;// of type pair<int, list<int>>
+	
+		cout <<endl;
+		if (moveScore.first < bigNum && moveScore.first > -bigNum){
+			child.flipMoves = moveToMake.second;
+		}
+	}
+	
 
 	if (flipMoves.size() != 0){	
 		//apply the result gotten from AIv_One();
 		int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;				
-		int ykey = piece_to_place / 10;
-		int xkey = piece_to_place % 10; 
+		int ykey = moveToMake.first / 10;
+		int xkey = moveToMake.first % 10; 
 		cout << "New Piece:	 "<<alphabet[ykey] << xkey<<endl;
-		board[ykey][xkey] = currentPlayer;
+		board.board[ykey][xkey] = currentPlayer;
 		pieceCounter++;
 		score[currentPlayer]++;
 
@@ -459,11 +496,11 @@ void Board::AIMove(){
 			int y = n/10;
 			int x = n%10;
 			cout << "flipMoves = " <<alphabet[y]<<x<<endl;
-			board[y][x] = currentPlayer;
+			board.board[y][x] = currentPlayer;
 		}
 		score[currentPlayer] += flipMoves.size();
 		score[oppositePlayer] -= flipMoves.size();
-		pass[currentPlayer] = 0;
+		pass[child.currentPlayer] = 0;
 		currentPlayer = (currentPlayer = WHITE) ? BLACK : WHITE;
 		return;
 	}
@@ -474,10 +511,9 @@ void Board::AIMove(){
 		return;
 	}
 }
-
 /*************************************************************************
 *RANDOM AI TEST CASE
-*************************************************************************/	
+*************************************************************************	
 
 int Board::randomAI(){
 	if (moves.empty()){
@@ -489,52 +525,40 @@ int Board::randomAI(){
 	return randomchoice;
 	}
 }
-
-/***********************************************************************
+***********************************************************************
 *COMPUTER MOVE
-***********************************************************************/
-
-
+***********************************************************************
 pair<int,list<int>> Board::AIv_One(){
-	int bigNum = 1000000;
-	pair<int, list<int>> moveToMake; 
-	int tempBoard[BOARDSIZE][BOARDSIZE];
-	memcpy(tempBoard, board, 64*sizeof(int));
-	int alpha = -bigNum;
-	int beta = bigNum;
-	OGplayer = currentPlayer;	
 	for (int d = 1; d < 4; d++) {
 		int bestVal = -bigNum;
 		cout <<"Searching at depth: " <<d<<endl;	
-		
-		pair<int, pair<int,list<int>>> moveScore = alphaBeta(tempBoard, d, d, alpha, beta, true);
+		pair<int, pair<int,list<int>>> moveScore = alphaBeta(child, d, d, alpha, beta, true);
 		bestVal = moveScore.first; // of type int -- is the weighted value
 		moveToMake = moveScore.second;// of type pair<int, list<int>>
-	
-/*
+
 	if (moves.size() == 1){ //there is only one move to make for the computer
 		for ( auto n : moves){
 			n = moveToMake;	
 		cout<< " There is only one move to make." << endl;
 		return moveToMake;
 	}
-*/
+
 	}
 	return moveToMake; // returns a key(move to make) and a list of moves to flip
 }
-
+*/
 
 /***************************************************************************
 * HEURISTIC STUFF
 ***************************************************************************/
 
 
-int HeuristicEval::Heuristic(int board[][BOARDSIZE], int Player){
+int HeuristicEval::Heuristic(Board board, int Player){
 	return	simpleBoardWeightHeuristic(board, Player);
 } 		
 
 
-int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player){
+int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 	int score = 0;
 	vector<int> BoardWeight = {	 4, -3,  2,  2,  2,  2, -3,  4,
 								-3, -4, -1, -1, -1, -1, -4, -3,
@@ -547,7 +571,7 @@ int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player
 						      };
 	//if you reach the corner, then the quadrant is no longer worth much
 
-	if ( board[0][0] != 0){
+	if (board.board[0][0] != 0){
 		BoardWeight[1] = 0;
 		BoardWeight[2] = 0;
 		BoardWeight[3] = 0;
@@ -562,7 +586,7 @@ int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player
 		BoardWeight[25] = 0;
 	}
 
-	if ( board[0][7]){
+	if (board.board[0][7]){
 		BoardWeight[4] = 0;
 		BoardWeight[5] = 0;
 		BoardWeight[6] = 0;
@@ -577,7 +601,7 @@ int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player
 		BoardWeight[31] = 0;
 	}
 
-	if ( board[7][0] != 0){
+	if (board.board[7][0] != 0){
 		BoardWeight[32] = 0;
 		BoardWeight[33] = 0;
 		BoardWeight[40] = 0;
@@ -592,7 +616,7 @@ int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player
 		BoardWeight[59] = 0;
 	}
 
-	if ( board[8][8] != 0){
+	if (board.board[8][8] != 0){
 		BoardWeight[39] = 0;
 		BoardWeight[38] = 0;
 		BoardWeight[45] = 0;
@@ -610,7 +634,7 @@ int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player
 
 	for( int ii = 0; ii < BOARDSIZE; ii++){
 		for (int jj = 0; jj < BOARDSIZE; jj++){
-			if (board[ii][jj] == Player){
+			if (board.board[ii][jj] == Player){
 				score += 100*(BoardWeight[ii*8+jj] + 1) +rand() % 10;// making it such that a board with more pieces is worth more than a board with less pieces?? greedy
 			} 		
 		}
@@ -623,7 +647,7 @@ int HeuristicEval::simpleBoardWeightHeuristic(int board[][BOARDSIZE], int Player
 ***********************************************************************/
 	//returns an int which is the key, as well a hash table set
 	
-pair<int, pair<int, list<int>>>	Board::alphaBeta (int boardstate[BOARDSIZE][BOARDSIZE], int maxDepth, int currentDepth, int alpha, int beta, bool MaxingPlayer){
+pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int currentDepth, int alpha, int beta, bool MaxingPlayer, int OGplayer){
 	pair<int,pair<int, list<int>>> moveScore;
 		
 	int bestValue;
@@ -631,7 +655,7 @@ pair<int, pair<int, list<int>>>	Board::alphaBeta (int boardstate[BOARDSIZE][BOAR
 	int bigNum = 1000000;
 	
 	if (currentDepth < 1){
-		bestValue = HeuristicEval::Heuristic(boardstate, OGplayer);
+		bestValue = HeuristicEval::Heuristic(board, OGplayer);
 		moveScore.first = bestValue;	
 		return moveScore;
 	}
@@ -642,17 +666,18 @@ pair<int, pair<int, list<int>>>	Board::alphaBeta (int boardstate[BOARDSIZE][BOAR
 	else{
 		currentPlayer = (OGplayer == BLACK) ? WHITE : BLACK;
 	}
-	
-	LegalMoves(currentPlayer);// generates the legal moves for the board inside this function and populates the moves hashmap
+	Board child = board; //copy the board??
+
+	child.LegalMoves(child.currentPlayer);// generates the legal moves for the board inside this function and populates the moves hashmap
 
 	pair<int,pair<int, list<int>>> tempmoveScore;
 	if (MaxingPlayer){
 		moveScore.first = -bigNum;
-		for (auto kv : moves){
+		for (auto kv : child.moves){
 			int key = kv.first;
-			applyMoveAI(key);
+			child.applyMoveAI(key);
 			
-			tempmoveScore = alphaBeta(boardstate, maxDepth, currentDepth -1, alpha, beta, false);
+			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, false, OGplayer);
 			alpha = max(alpha, moveScore.first);
 			if (tempmoveScore.first > moveScore.first) {
 				moveScore.first = tempmoveScore.first;
@@ -667,10 +692,10 @@ pair<int, pair<int, list<int>>>	Board::alphaBeta (int boardstate[BOARDSIZE][BOAR
 	}	
 	else{ //if not maxing player
 		moveScore.first = bigNum;
-		for (auto kv : moves){
+		for (auto kv : child.moves){
 			int key = kv.first;
-			applyMoveAI(key);
-			tempmoveScore = alphaBeta(boardstate, maxDepth, currentDepth -1, alpha, beta, true);
+			child.applyMoveAI(key);
+			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, true, OGplayer);
 			alpha = max(alpha, moveScore.first);
 			if (tempmoveScore.first < moveScore.first) {
 				moveScore.first = tempmoveScore.first;

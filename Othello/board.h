@@ -30,7 +30,8 @@ using namespace std;
 
 class Board{
 	public:
-		Board();
+		Board();	
+		Board(Board &b);
 		typedef unordered_map<int, list<int>> hashmap;	
 
 		//gameMode option parsing
@@ -38,19 +39,24 @@ class Board{
 		bool whiteIsHuman;
 		bool blackIsHuman;
 		int playAs; 
-
+		
 		hashmap moves;
 		int currentPlayer;
 		int score[3];
 		int pass[3];
-		int Print();
-		void PrintSolo();
-		list<int> pastMoves;	
 		list<int> flipMoves;	
 		int pieceCounter;
+		int board[BOARDSIZE][BOARDSIZE];
+
+		list<int> pastMoves;	
 		
-		bool legalChoice(int y, int x);
+
+		//member functions	
+		int Print();//print UI
+		void PrintSolo();//print only screen 
+		bool legalChoice(int y, int x); //bounds of the board
 		void LegalMoves(int player);
+		pair<int, pair<int, list<int>>> alphaBeta(Board board, int maxDepth, int depth, int alpha, int beta, bool MaxingPlayer, int OGplayer);
 		void GenerateViableMoves(int Direction[], int curPlayer, int X, int Y, list<int> flip);
 		void applyMove(int mvchoice);
 		void applyMoveAI(int key);
@@ -59,17 +65,17 @@ class Board{
 		void LoadBoard(string pathname);
 		void SaveBoard(string pathname);
 		void HumanMove();
-		void AIMove();		
-		int randomAI();
+		void AIMove(Board b);		
+		//int randomAI();
 		pair<int, list<int>> AIv_One();
 		int get_board();
-		pair<int, pair<int, list<int>>> alphaBeta(int tempBoard[BOARDSIZE][BOARDSIZE], int maxDepth, int depth, int alpha, int beta, bool MaxingPlayer);
 		int OGplayer;
 	private:
 		void PrintEndScreen();	
-		int board[BOARDSIZE][BOARDSIZE];
-		//bool playerPassed;
 };
+
+
+
 /*
 class Player{
 	public:
@@ -82,10 +88,10 @@ class Player{
 class HeuristicEval{//heuristic subclass
 	public:
 		HeuristicEval();
-		static int Heuristic(int board[][BOARDSIZE], int player);	
+		static int Heuristic(Board board, int player);	
 	
 	private:
-		static int simpleBoardWeightHeuristic(int board [][BOARDSIZE], int player);	
+		static int simpleBoardWeightHeuristic(Board board, int player);	
 };
 #endif
 

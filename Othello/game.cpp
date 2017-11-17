@@ -84,7 +84,7 @@ int main(int argc, char** argv){
 				b.HumanMove();
 			}
 			else{
-				b.AIMove();
+				b.AIMove(b);
 			}
 		}
 		else if (b.currentPlayer == WHITE){
@@ -92,7 +92,7 @@ int main(int argc, char** argv){
 				b.HumanMove();
 			}
 			else{
-				b.AIMove();
+				b.AIMove(b);
 			}
 		}
 	}
