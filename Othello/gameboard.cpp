@@ -75,7 +75,6 @@ void Board::PrintSolo(){
 
 
 int Board::Print(){
-
 	//print out the board UI
 	int choice = 1;
 	PrintSolo();//calls the print function
@@ -170,41 +169,41 @@ void Board::LegalMoves(int player){
 	}
 }
 	
-void Board::applyMoveAI(int key){
+void Board::applyMoveAI(int key, list<int> flipflop){
 //check for valid input
-	if (!moves.empty()){//while the hash table is not empty
-		auto search = moves.find(key);
-		flipMoves = search->second;
-		int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
-		int ycoord = key /10;
-		int xcoord = key %10;
-		cout<< "AI best move is: "<<alphabet[ycoord]<< xcoord << endl;
-		board[ycoord][xcoord] = currentPlayer;
-		pieceCounter++;
-		score[currentPlayer]++;
-		//pastMoves.push_back(output);
+	//if (!moves.empty()){//while the hash table is not empty
+	int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
+	int ycoord = key /10;
+	int xcoord = key %10;
+	//cout<< "AI best move is: "<<alphabet[ycoord]<< xcoord << endl;
+	board[ycoord][xcoord] = currentPlayer;
+	pieceCounter++;
+	score[currentPlayer]++;
+	//pastMoves.push_back(output);
 
-		//apply all flips
-		for (int n : flipMoves){	
-			int y = n / 10;
-			int x = n % 10;
-			board[y][x] = currentPlayer;
-		}		
+	//apply all flips
+	for (int n : flipflop){	
+		int y = n / 10;
+		int x = n % 10;
+		board[y][x] = currentPlayer;
+	}		
 
-		//update score with the flips
-		score[currentPlayer] += flipMoves.size();
-		score[oppositePlayer] -= flipMoves.size();
-	// switch the current player, wipe the hash table	
-		pass[currentPlayer] = 0;//set the pass player to 0, no passes here!
-		currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
-		return;
-	}
+	//update score with the flips
+	score[currentPlayer] += flipMoves.size();
+	score[oppositePlayer] -= flipMoves.size();
+// switch the current player, wipe the hash table	
+	pass[currentPlayer] = 0;//set the pass player to 0, no passes here!
+	currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
+	return;
+	//}
+	/*
 	if(moves.empty()){//if the hash table is empty, dont even apply any moves and just skip
-		cout << "No moves, player : " << currentPlayer <<"  skipped. " <<endl;
+		cout << "AI Found no moves, player : " << currentPlayer <<"  skipped. " <<endl;
 		pass[currentPlayer] = 1;
 		currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;	
 		return;
 	}	
+	*/
 }
 void Board::applyMove(int mvchoice){
 	int output;
@@ -222,8 +221,8 @@ void Board::applyMove(int mvchoice){
 		int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
 		int ycoord = output /10;
 		int xcoord = output %10;
-		cout << " output is " << output<< endl;
-		cout<< "ycoord is "<<ycoord << " and xcoord is : " << xcoord << endl;
+		//cout << " output is " << output<< endl;
+		//cout<< "ycoord is "<<ycoord << " and xcoord is : " << xcoord << endl;
 		board[ycoord][xcoord] = currentPlayer;
 		pieceCounter++;
 		score[currentPlayer]++;
@@ -429,79 +428,56 @@ void Board::HumanMove(){
     applyMove(mvchoice); 
 }
 
-void Board::AIMove(Board board){
-/* this is for the randomAI
-	int ai_mvchoice;
-	int count = 1;
-	int output;
-
-	clear(); 
-	LegalMoves(currentPlayer);
-	ai_mvchoice = randomAI();	
-	if (ai_mvchoice != 0){//while the hash table is not empty
-		for (auto mv : moves){
-			if (count == ai_mvchoice){
-				output = mv.first;	
-			}
-			count ++;
-		}
-	}
-	int ii = output /10;
-	int jj = output %10;
-	cout <<"The AI makes move: " fRED <<alphabet[ii]<<jj<< RESET<<endl;
-	applyMove(ai_mvchoice);
-*/
+void Board::AIMove(Board &boardgame){
 	PrintSolo();//just print the State of the Board
 	int ai_mvchoice;
 	clear();// clear the board hash table
-	Board child = board;
+	flipMoves.clear();
+	Board child = boardgame;//make a copy of the board
 	int bigNum = 1000000;	
 	pair<int,list<int>> moveToMake;
 	int alpha = -bigNum;
 	int beta = bigNum;
 	OGplayer = currentPlayer;
-	
-	//pair<int,list<int>> AI_decision = AIv_One();//call AIv_One into a key, list pair
-	//int piece_to_place = AI_decision.first;
-	//flipMoves.clear();	
-	//flipMoves = AI_decision.second;
-	for ( int depth = 1; depth < 4; depth++){
+
+	for ( int depth = 1; depth < 3; depth++){
 		int bestVal = -bigNum;
 		cout <<"Searching at depth: " <<depth<<endl;	
-		
+		clear();
+		flipMoves.clear();		
 		pair<int, pair<int,list<int>>> moveScore = alphaBeta(child, depth, depth, alpha, beta, true, OGplayer);
-		bestVal = moveScore.first; // of type int -- is the weighted value
-		moveToMake = moveScore.second;// of type pair<int, list<int>>
-	
-		cout <<endl;
-		if (moveScore.first < bigNum && moveScore.first > -bigNum){
-			child.flipMoves = moveToMake.second;
+		if( moveScore.first > bestVal){	
+			bestVal = moveScore.first; // of type int -- is the weighted value
+			moveToMake = moveScore.second;// of type pair<int, list<int>>
 		}
+		cout << "bestVal: "<<bestVal;
+		child.flipMoves = moveToMake.second;
+		cout<<endl;
 	}
-	
-
-	if (flipMoves.size() != 0){	
+	if (child.flipMoves.size() != 0){	
 		//apply the result gotten from AIv_One();
 		int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;				
 		int ykey = moveToMake.first / 10;
 		int xkey = moveToMake.first % 10; 
 		cout << "New Piece:	 "<<alphabet[ykey] << xkey<<endl;
-		board.board[ykey][xkey] = currentPlayer;
+		boardgame.board[ykey][xkey] = currentPlayer;
 		pieceCounter++;
 		score[currentPlayer]++;
 
 
 		//apply all flips
-		for (int n : flipMoves){
+		cout<<"flipmoves = ";
+		for (int n : child.flipMoves){
 			int y = n/10;
 			int x = n%10;
-			cout << "flipMoves = " <<alphabet[y]<<x<<endl;
-			board.board[y][x] = currentPlayer;
+			cout <<alphabet[y]<<x;
+			boardgame.board[y][x] = currentPlayer;
 		}
-		score[currentPlayer] += flipMoves.size();
-		score[oppositePlayer] -= flipMoves.size();
+		cout<<endl;
+		score[currentPlayer] += child.flipMoves.size();
+		score[oppositePlayer] -= child.flipMoves.size();
 		pass[child.currentPlayer] = 0;
-		currentPlayer = (currentPlayer = WHITE) ? BLACK : WHITE;
+		currentPlayer = oppositePlayer;
 		return;
 	}
 	if (flipMoves.size() == 0){
@@ -560,17 +536,17 @@ int HeuristicEval::Heuristic(Board board, int Player){
 
 int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 	int score = 0;
-	vector<int> BoardWeight = {	 4, -3,  2,  2,  2,  2, -3,  4,
+	vector<int> BoardWeight = {	 40, -3,  2,  2,  2,  2, -3,  40,
 								-3, -4, -1, -1, -1, -1, -4, -3,
 								 2, -1,  1,  0,  0,  1, -1,  2,
 								 2, -1,  0,  1,  1,  0, -1,  2,
 								 2, -1,  0,  1,  1,  0, -1,  2,
 								 2, -1,  1,  0,  0,  1, -1,  2,
 								-3, -4, -1, -1, -1, -1, -4, -3,
-								 4, -3,  2,  2,  2,  2, -3,  4,
+								 40, -3,  2,  2,  2,  2, -3,  40,
 						      };
 	//if you reach the corner, then the quadrant is no longer worth much
-
+	/*
 	if (board.board[0][0] != 0){
 		BoardWeight[1] = 0;
 		BoardWeight[2] = 0;
@@ -630,12 +606,12 @@ int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 		BoardWeight[61] = 0;
 		BoardWeight[62] = 0;
 	}
-	
+	*/	
 
 	for( int ii = 0; ii < BOARDSIZE; ii++){
 		for (int jj = 0; jj < BOARDSIZE; jj++){
 			if (board.board[ii][jj] == Player){
-				score += 100*(BoardWeight[ii*8+jj] + 1) +rand() % 10;// making it such that a board with more pieces is worth more than a board with less pieces?? greedy
+				score += 1000*(BoardWeight[ii*8+jj]) +rand() % 10;// making it such that a board with more pieces is worth more than a board with less pieces?? greedy
 			} 		
 		}
 	}
@@ -649,7 +625,8 @@ int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 	
 pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int currentDepth, int alpha, int beta, bool MaxingPlayer, int OGplayer){
 	pair<int,pair<int, list<int>>> moveScore;
-		
+	//board.clear();// clear the board hash table
+	//board.flipMoves.clear();
 	int bestValue;
 	int currentPlayer;
 	int bigNum = 1000000;
@@ -657,57 +634,91 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 	if (currentDepth < 1){
 		bestValue = HeuristicEval::Heuristic(board, OGplayer);
 		moveScore.first = bestValue;	
+		cout<<"bestvalue = "<<bestValue<<endl; //" for move: " <<alphabet[moveScore.second.first/10]<<moveScore.second.first%10<<endl;
 		return moveScore;
 	}
 
-	if(MaxingPlayer){
+	if(MaxingPlayer){//keep a copy of the current player making a move
 		currentPlayer = OGplayer;
 	}
 	else{
 		currentPlayer = (OGplayer == BLACK) ? WHITE : BLACK;
 	}
+	LegalMoves(currentPlayer);
+	for (auto kv : moves){//just want to print out the legal moves
+		cout<<"Legal move = ";
+		list<int> flipp = kv.second;
+		cout<< alphabet[kv.first/10]<<kv.first%10<< " ";
+		for (auto mv : flipp){
+			cout<<" -"<<alphabet[mv/10]<<mv%10;
+		}
+	cout<< endl;
+	}	
+/*
 	Board child = board; //copy the board??
 
 	child.LegalMoves(child.currentPlayer);// generates the legal moves for the board inside this function and populates the moves hashmap
-
-	pair<int,pair<int, list<int>>> tempmoveScore;
-	if (MaxingPlayer){
-		moveScore.first = -bigNum;
+	//print the legal moves for child 
 		for (auto kv : child.moves){
 			int key = kv.first;
-			child.applyMoveAI(key);
+			list<int> flipp = kv.second;
+			cout<<"Legal move = "<< alphabet[key/10]<<key%10;
+			for (auto mv : flipp){
+				cout<<" -"<< alphabet[mv/10]<<mv%10<<endl;
+			}
+		}
+*/
+	pair<int,pair<int, list<int>>> tempmoveScore;
+
+	if (MaxingPlayer){
+		cout<<"I am maxing"<<endl;
+		moveScore.first = -bigNum;
+		
+		for (auto kv : moves){
+			Board child = board;//create a scratch board
+			cout<<currentDepth<< "Applying move: "<<alphabet[kv.first/10]<<kv.first%10<<endl;
+			int key = kv.first;
+			list<int> flipflop = kv.second;//TODO add valid input check//no moves
+			child.applyMoveAI(key, flipflop);
 			
 			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, false, OGplayer);
-			alpha = max(alpha, moveScore.first);
 			if (tempmoveScore.first > moveScore.first) {
 				moveScore.first = tempmoveScore.first;
 				moveScore.second = kv;
 			}	
+			cout<<"Alpha is:"<<alpha<<endl;
 			alpha = max(alpha, moveScore.first);
 			if (beta <= alpha){ //alpha beta pruning
+				cout<<"ALPHA PRUNE THAT SHIT!"<<endl;
 				break;
 			}
 		}
 		return moveScore;
 	}	
 	else{ //if not maxing player
+		cout<<"I am minning"<<endl;
 		moveScore.first = bigNum;
-		for (auto kv : child.moves){
+
+		for (auto kv : moves){	
+			Board child = board; //creating a scratch board
+			cout<<currentDepth<< "Applying move: "<<alphabet[kv.first/10]<<kv.first%10<<endl;
 			int key = kv.first;
-			child.applyMoveAI(key);
+			list<int> flipflop = kv.second;
+			child.applyMoveAI(key,flipflop);
+			
 			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, true, OGplayer);
-			alpha = max(alpha, moveScore.first);
 			if (tempmoveScore.first < moveScore.first) {
 				moveScore.first = tempmoveScore.first;
 				moveScore.second = kv;
 			}				
+			cout<<"Beta is: "<< beta<< endl;
 			beta = min(beta, moveScore.first);
-		
-			moveScore.second = kv;
 			if (beta <= alpha){ //alpha beta pruning
+				cout<<"BETA PRUNE THAT SHIT!"<<endl;
 				break;
 			}
 		}
+		return moveScore;
 	}
 }
 			

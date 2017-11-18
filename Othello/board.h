@@ -59,13 +59,13 @@ class Board{
 		pair<int, pair<int, list<int>>> alphaBeta(Board board, int maxDepth, int depth, int alpha, int beta, bool MaxingPlayer, int OGplayer);
 		void GenerateViableMoves(int Direction[], int curPlayer, int X, int Y, list<int> flip);
 		void applyMove(int mvchoice);
-		void applyMoveAI(int key);
+		void applyMoveAI(int key, list<int> flipflop);
 		void clear();
 		bool TerminalTest();	
 		void LoadBoard(string pathname);
 		void SaveBoard(string pathname);
 		void HumanMove();
-		void AIMove(Board b);		
+		void AIMove(Board &b);		
 		//int randomAI();
 		pair<int, list<int>> AIv_One();
 		int get_board();
