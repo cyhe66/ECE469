@@ -644,17 +644,18 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 	else{
 		currentPlayer = (OGplayer == BLACK) ? WHITE : BLACK;
 	}
-	LegalMoves(currentPlayer);
-	for (auto kv : moves){//just want to print out the legal moves
-		cout<<"Legal move = ";
-		list<int> flipp = kv.second;
-		cout<< alphabet[kv.first/10]<<kv.first%10<< " ";
-		for (auto mv : flipp){
-			cout<<" -"<<alphabet[mv/10]<<mv%10;
-		}
-	cout<< endl;
-	}	
-/*
+  
+  moves.clear();
+//	LegalMoves(currentPlayer);
+//	for (auto kv : moves){//just want to print out the legal moves
+//		cout<<"Legal move = ";
+//		list<int> flipp = kv.second;
+//		cout<< alphabet[kv.first/10]<<kv.first%10<< " ";
+//		for (auto mv : flipp){
+//			cout<<" -"<<alphabet[mv/10]<<mv%10;
+//		}
+//	cout<< endl;
+//	}	
 	Board child = board; //copy the board??
 
 	child.LegalMoves(child.currentPlayer);// generates the legal moves for the board inside this function and populates the moves hashmap
@@ -667,14 +668,14 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 				cout<<" -"<< alphabet[mv/10]<<mv%10<<endl;
 			}
 		}
-*/
+
 	pair<int,pair<int, list<int>>> tempmoveScore;
 
 	if (MaxingPlayer){
 		cout<<"I am maxing"<<endl;
 		moveScore.first = -bigNum;
 		
-		for (auto kv : moves){
+		for (auto kv : child.moves){
 			Board child = board;//create a scratch board
 			cout<<currentDepth<< "Applying move: "<<alphabet[kv.first/10]<<kv.first%10<<endl;
 			int key = kv.first;
@@ -699,7 +700,7 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 		cout<<"I am minning"<<endl;
 		moveScore.first = bigNum;
 
-		for (auto kv : moves){	
+		for (auto kv : child.moves){	
 			Board child = board; //creating a scratch board
 			cout<<currentDepth<< "Applying move: "<<alphabet[kv.first/10]<<kv.first%10<<endl;
 			int key = kv.first;

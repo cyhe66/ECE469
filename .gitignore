@@ -1,0 +1,10 @@
+#This be my git ignore
+
+# Executables
+*.exe
+*.out
+
+
+# vim swap files
+*.swp
+
