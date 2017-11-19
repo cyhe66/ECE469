@@ -440,7 +440,7 @@ void Board::AIMove(Board &boardgame){
 	int beta = bigNum;
 	OGplayer = currentPlayer;
 
-	for ( int depth = 1; depth < 3; depth++){
+	for ( int depth = 1; depth < 9; depth++){
 		int bestVal = -bigNum;
 		cout <<"Searching at depth: " <<depth<<endl;	
 		clear();
@@ -450,7 +450,6 @@ void Board::AIMove(Board &boardgame){
 			bestVal = moveScore.first; // of type int -- is the weighted value
 			moveToMake = moveScore.second;// of type pair<int, list<int>>
 		}
-		cout << "bestVal: "<<bestVal;
 		child.flipMoves = moveToMake.second;
 		cout<<endl;
 	}
@@ -459,18 +458,18 @@ void Board::AIMove(Board &boardgame){
 		int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;				
 		int ykey = moveToMake.first / 10;
 		int xkey = moveToMake.first % 10; 
-		cout << "New Piece:	 "<<alphabet[ykey] << xkey<<endl;
+		cout<<"**********************************"<<endl;
+		cout << "AI Makes Move:	 "<<alphabet[ykey] << xkey<<endl;
+		cout<<"**********************************"<<endl;
 		boardgame.board[ykey][xkey] = currentPlayer;
 		pieceCounter++;
 		score[currentPlayer]++;
 
 
 		//apply all flips
-		cout<<"flipmoves = ";
 		for (int n : child.flipMoves){
 			int y = n/10;
 			int x = n%10;
-			cout <<alphabet[y]<<x;
 			boardgame.board[y][x] = currentPlayer;
 		}
 		cout<<endl;
@@ -625,8 +624,6 @@ int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 	
 pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int currentDepth, int alpha, int beta, bool MaxingPlayer, int OGplayer){
 	pair<int,pair<int, list<int>>> moveScore;
-	//board.clear();// clear the board hash table
-	//board.flipMoves.clear();
 	int bestValue;
 	int currentPlayer;
 	int bigNum = 1000000;
@@ -634,7 +631,6 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 	if (currentDepth < 1){
 		bestValue = HeuristicEval::Heuristic(board, OGplayer);
 		moveScore.first = bestValue;	
-		cout<<"bestvalue = "<<bestValue<<endl; //" for move: " <<alphabet[moveScore.second.first/10]<<moveScore.second.first%10<<endl;
 		return moveScore;
 	}
 
@@ -656,28 +652,17 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 //		}
 //	cout<< endl;
 //	}	
-	Board child = board; //copy the board??
+	Board child = board; 
 
 	child.LegalMoves(child.currentPlayer);// generates the legal moves for the board inside this function and populates the moves hashmap
-	//print the legal moves for child 
-		for (auto kv : child.moves){
-			int key = kv.first;
-			list<int> flipp = kv.second;
-			cout<<"Legal move = "<< alphabet[key/10]<<key%10;
-			for (auto mv : flipp){
-				cout<<" -"<< alphabet[mv/10]<<mv%10<<endl;
-			}
-		}
 
 	pair<int,pair<int, list<int>>> tempmoveScore;
 
 	if (MaxingPlayer){
-		cout<<"I am maxing"<<endl;
 		moveScore.first = -bigNum;
 		
 		for (auto kv : child.moves){
 			Board child = board;//create a scratch board
-			cout<<currentDepth<< "Applying move: "<<alphabet[kv.first/10]<<kv.first%10<<endl;
 			int key = kv.first;
 			list<int> flipflop = kv.second;//TODO add valid input check//no moves
 			child.applyMoveAI(key, flipflop);
@@ -687,22 +672,18 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 				moveScore.first = tempmoveScore.first;
 				moveScore.second = kv;
 			}	
-			cout<<"Alpha is:"<<alpha<<endl;
 			alpha = max(alpha, moveScore.first);
 			if (beta <= alpha){ //alpha beta pruning
-				cout<<"ALPHA PRUNE THAT SHIT!"<<endl;
 				break;
 			}
 		}
 		return moveScore;
 	}	
 	else{ //if not maxing player
-		cout<<"I am minning"<<endl;
 		moveScore.first = bigNum;
 
 		for (auto kv : child.moves){	
 			Board child = board; //creating a scratch board
-			cout<<currentDepth<< "Applying move: "<<alphabet[kv.first/10]<<kv.first%10<<endl;
 			int key = kv.first;
 			list<int> flipflop = kv.second;
 			child.applyMoveAI(key,flipflop);
@@ -712,10 +693,8 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 				moveScore.first = tempmoveScore.first;
 				moveScore.second = kv;
 			}				
-			cout<<"Beta is: "<< beta<< endl;
 			beta = min(beta, moveScore.first);
 			if (beta <= alpha){ //alpha beta pruning
-				cout<<"BETA PRUNE THAT SHIT!"<<endl;
 				break;
 			}
 		}
@@ -723,41 +702,3 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 	}
 }
 			
-
-	
-/*
-function minimax(node * parent)
-
-if parent depth == maxdepth
-	set parent value = to heuristic
-	return
-
-if in max
-set bool max = true
-set parent value to intmax
-
-if in min
-set bool max = false
-set parent value to intmax
-
-create temp node
-
-for (loop through legal moves)
-set board of parent = board of temp
-make the move on temp
-set all values for temp based on that move
-set temp as a child of parent
-
-call minimax(child)
-
-if ( max && parent->value < child -> value)
-swap the value of the parent with the child
-(do alphabeta check)
-
-if ( !max && parent -> value > child -> value)
-do swap
-do alpha-beta check
-
-*/	
-
-
