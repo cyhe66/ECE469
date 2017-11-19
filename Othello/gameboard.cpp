@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <limits>
 #include <string>
-#include <assert.h>
 #include <numeric>
 #include <tuple>
 #include <string.h>
@@ -10,6 +9,7 @@
 #include <iomanip>
 #include <vector>
 #include <list>
+#include <chrono>
 #include "board.h"
 
 const char alphabet[8] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'};
@@ -32,6 +32,7 @@ Board::Board(){
 	currentPlayer = BLACK;
 	pieceCounter = 4;
 	gameCounter = 4;
+	AI_timelimit = 5;
 }
 
 //copy constructor
@@ -291,6 +292,8 @@ void Board::PrintEndScreen(){
 	cout << " The " << (score[WHITE] > score[BLACK] ? "White" : "Black") << " Player Wins!" << endl;
 	cout << " Winner: " << (score[WHITE] > score[BLACK] ? "White" : "Black");
 	cout << " with score: " << (score[WHITE] > score[BLACK] ? score[WHITE] : score[BLACK]) << endl; 
+	cout << " The " << (score[WHITE] > score[BLACK] ? "Black" : "White") << " Player loses " << endl;
+	cout << " with score: " << (score[WHITE] > score[BLACK] ? score[BLACK] : score[WHITE]) << endl; 
 	cout << " ######################################### " << endl;
 	cout << " ######################################### " << endl;
 }
@@ -436,7 +439,22 @@ void Board::HumanMove(){
     applyMove(mvchoice); 
 }
 
+chrono::time_point<std::chrono::system_clock> tic() { 
+	return chrono::system_clock::now();
+}
+
+chrono::duration<double> toc(chrono::time_point<std::chrono::system_clock> start) {
+	chrono::time_point<std::chrono::system_clock> end = chrono::system_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	return elapsed_seconds;
+}
+
+
+
+
 void Board::AIMove(Board &boardgame){
+	chrono::time_point<std::chrono::system_clock> start = tic();//start the timer
+	
 	PrintSolo();//just print the State of the Board
 	int ai_mvchoice;
 	clear();// clear the board hash table
@@ -444,31 +462,37 @@ void Board::AIMove(Board &boardgame){
 	Board child = boardgame;//make a copy of the board
 	int bigNum = 1000000;	
 	pair<int,list<int>> moveToMake;
+	pair<int,list<int>> tempmoveToMake;
 	int alpha = -bigNum;
 	int beta = bigNum;
 	OGplayer = currentPlayer;
-
-	for ( int depth = 1; depth < 8; depth++){
+	int depth;
+	cout<<"Searched to depth: ";
+	for (depth = 1; depth < 50; depth++){//assuming depth 50 is never achievable
 		int bestVal = -bigNum;
-		cout <<"Searching at depth: " <<depth<<endl;	
 		clear();
 		flipMoves.clear();		
-		pair<int, pair<int,list<int>>> moveScore = alphaBeta(child, depth, depth, alpha, beta, true, OGplayer);
-		if( moveScore.first > bestVal){	
+		pair<int, pair<int,list<int>>> moveScore = alphaBeta(child, depth, depth, alpha, beta, true, OGplayer, start);
+		if( moveScore.first > bestVal && moveScore.first != (numeric_limits<int>::max() -1) && moveScore.first != numeric_limits<int>::min() + 1) {	
 			bestVal = moveScore.first; // of type int -- is the weighted value
-			moveToMake = moveScore.second;// of type pair<int, list<int>>
+			tempmoveToMake = moveScore.second;// of type pair<int, list<int>>
 		}
-		child.flipMoves = moveToMake.second;
-		cout<<endl;
+		if(moveScore.first != (numeric_limits<int>::max() -1) && moveScore.first != (numeric_limits<int>::min() + 1)){
+			moveToMake = tempmoveToMake;	
+		}
+		else{
+			break;
+		}	
 	}
+	cout<<depth<<endl;	
+	child.flipMoves = moveToMake.second;
+	
 	if (child.flipMoves.size() != 0){	
 		//apply the result gotten from AIv_One();
 		int oppositePlayer = (currentPlayer == WHITE) ? BLACK : WHITE;				
 		int ykey = moveToMake.first / 10;
 		int xkey = moveToMake.first % 10; 
-		cout<<"**********************************"<<endl;
 		cout << "AI Makes Move:	 "<<alphabet[ykey] << xkey<<endl;
-		cout<<"**********************************"<<endl;
 		boardgame.board[ykey][xkey] = currentPlayer;
 		pieceCounter++;
 		score[currentPlayer]++;
@@ -480,12 +504,15 @@ void Board::AIMove(Board &boardgame){
 			int x = n%10;
 			boardgame.board[y][x] = currentPlayer;
 		}
-		cout<<endl;
 		score[currentPlayer] += child.flipMoves.size();
 		score[oppositePlayer] -= child.flipMoves.size();
 		pass[child.currentPlayer] = 0;
 		gameCounter++;
 		currentPlayer = oppositePlayer;
+		chrono::duration<double> elapsed_seconds = toc(start);
+		cout<<"AI took: " <<elapsed_seconds.count() <<" seconds to make a move."<<endl;
+		cout<<endl;
+		cout<<endl;
 		return;
 	}
 	if (flipMoves.size() == 0){
@@ -493,6 +520,10 @@ void Board::AIMove(Board &boardgame){
 		pass[currentPlayer] = 1;
 		gameCounter++;
 		currentPlayer = (currentPlayer = WHITE) ? BLACK : WHITE;
+		chrono::duration<double> elapsed_seconds = toc(start);
+		cout<<"AI took: " <<elapsed_seconds.count() <<" seconds to make a move."<<endl;
+		cout<<endl;
+		cout<<endl;
 		return;
 	}
 }
@@ -737,8 +768,20 @@ int HeuristicEval::Corners(Board board, int player){ //corner control is good to
 ***********************************************************************/
 	//returns an int which is the key, as well a hash table set
 	
-pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int currentDepth, int alpha, int beta, bool MaxingPlayer, int OGplayer){
+pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int currentDepth, int alpha, int beta, bool MaxingPlayer, int OGplayer, chrono::time_point<std::chrono::system_clock> start){
 	pair<int,pair<int, list<int>>> moveScore;
+	chrono::duration<double> elapsed_seconds = toc(start);
+
+	if(elapsed_seconds.count() > 0.995 * AI_timelimit){
+		if (!MaxingPlayer){
+			moveScore.first = numeric_limits<int>::max() - 1;
+			return moveScore;
+		}
+		else {
+			moveScore.first = numeric_limits<int>::min() + 1;
+			return moveScore;
+		}
+	}
 	int bestValue;
 	int currentPlayer;
 	int bigNum = 1000000;
@@ -772,7 +815,7 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 			child.LegalMoves(child.currentPlayer);
 		}
 		if (child.moves.size() > 0){
-			moveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, !MaxingPlayer, OGplayer);
+			moveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, !MaxingPlayer, OGplayer, start);
 			return moveScore;
 		}
 		else{
@@ -793,7 +836,7 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 			list<int> flipflop = kv.second;//TODO add valid input check//no moves
 			child.applyMoveAI(key, flipflop);
 			
-			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, false, OGplayer);
+			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, false, OGplayer, start);
 			if (tempmoveScore.first > moveScore.first) {
 				moveScore.first = tempmoveScore.first;
 				moveScore.second = kv;
@@ -814,7 +857,7 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 			list<int> flipflop = kv.second;
 			child.applyMoveAI(key,flipflop);
 			
-			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, true, OGplayer);
+			tempmoveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, true, OGplayer, start);
 			if (tempmoveScore.first < moveScore.first) {
 				moveScore.first = tempmoveScore.first;
 				moveScore.second = kv;

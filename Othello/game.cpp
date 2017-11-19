@@ -17,7 +17,8 @@ int main(int argc, char** argv){
 	int saveGame;
 	//int mvchoice;
 	int playAs;
-	
+	int set_time;
+	int time_to_set;	
 	
 	cout << "Welcome to Othello!" << endl;
 	
@@ -56,6 +57,31 @@ int main(int argc, char** argv){
 		b.whiteIsHuman = false;
 		b.blackIsHuman = false;
 	}
+	/*********************************************************
+	Set AI TIME LIMIT
+	*********************************************************/
+		cout<<"Do you want to set the time limit for the AI? Default 5 seconds. Enter 1 to specify or 0 to continue - "<<endl;
+		cin>> set_time;	
+
+		while (set_time < 0 || set_time > 1 || cin.fail()){
+			cout<< "Input not recognized. Do you want to set the time limit for the AI? Enter 1 to specify or 0 to continue -"<<endl;
+			cin.clear();
+			cin.ignore(numeric_limits<streamsize>::max(), '\n');
+			cin >> set_time;
+		}
+		if (set_time == 1){
+			cout<<" How many seconds do you want the A.I. to have to make a move? "<<endl;
+			cin >>	time_to_set; 
+			while (set_time < 0 || set_time > 60 || cin.fail()){
+				cout<< "Input not recognized. Do you wish to play as Black or White? Pick 0 for Black and 1 for White:"<<endl;
+				cin.clear();
+				cin.ignore(numeric_limits<streamsize>::max(), '\n');
+				cin >> time_to_set;
+			}
+			b.AI_timelimit = time_to_set;
+		}
+
+
 	/*****************************************************
 	Option to LOAD in a saved gamestate
 	*****************************************************/

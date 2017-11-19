@@ -8,6 +8,7 @@
 #include <vector>
 #include <limits.h>
 #include <unordered_map>
+#include <chrono>
 #include <list>
 #include <tuple>
 #include <string.h>
@@ -48,6 +49,7 @@ class Board{
 		int pieceCounter;
 		int board[BOARDSIZE][BOARDSIZE];
 		int gameCounter;
+		float AI_timelimit;
 
 
 		//member functions	
@@ -55,7 +57,7 @@ class Board{
 		void PrintSolo();//print only screen 
 		bool legalChoice(int y, int x); //bounds of the board
 		void LegalMoves(int player);
-		pair<int, pair<int, list<int>>> alphaBeta(Board board, int maxDepth, int depth, int alpha, int beta, bool MaxingPlayer, int OGplayer);
+		pair<int, pair<int, list<int>>> alphaBeta(Board board, int maxDepth, int depth, int alpha, int beta, bool MaxingPlayer, int OGplayer, chrono::time_point<std::chrono::system_clock> start);
 		void GenerateViableMoves(int Direction[], int curPlayer, int X, int Y, list<int> flip);
 		void applyMove(int mvchoice);
 		void applyMoveAI(int key, list<int> flipflop);
@@ -72,17 +74,6 @@ class Board{
 	private:
 		void PrintEndScreen();	
 };
-
-
-
-/*
-class Player{
-	public:
-		Player();
-		int OGplayer;
-	private:
-	//	int bigNum = INT_MAX /2;
-*/		
 
 class HeuristicEval{//heuristic subclass
 	public:
