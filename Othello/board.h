@@ -47,9 +47,8 @@ class Board{
 		list<int> flipMoves;	
 		int pieceCounter;
 		int board[BOARDSIZE][BOARDSIZE];
+		int gameCounter;
 
-		list<int> pastMoves;	
-		
 
 		//member functions	
 		int Print();//print UI
@@ -92,6 +91,10 @@ class HeuristicEval{//heuristic subclass
 	
 	private:
 		static int simpleBoardWeightHeuristic(Board board, int player);	
+		static int ParityCalc(Board board, int player);
+		static int terminalStateCheck(Board board, int player);
+		static int Corners(Board board, int player);
+	
 };
 #endif
 

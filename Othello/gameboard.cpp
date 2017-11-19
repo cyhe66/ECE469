@@ -31,6 +31,7 @@ Board::Board(){
 	pass[BLACK] = 0;
 	currentPlayer = BLACK;
 	pieceCounter = 4;
+	gameCounter = 4;
 }
 
 //copy constructor
@@ -71,6 +72,12 @@ void Board::PrintSolo(){
 		}
 		cout << RESET << endl;
 	}
+	cout<<fRED "*************************"<<endl;
+	cout<<fRED "Move : "<<gameCounter<<endl;
+	cout<<fRED "Current Player: " << ((currentPlayer == WHITE) ? "White(1)" : "Black(2)") << endl;
+	cout<<fRED "Black Pieces: " << score[BLACK] <<endl;
+	cout<<fRED "White Pieces: "<< score[WHITE] <<endl;
+	cout<<"*************************"<<RESET<<endl;
 }
 
 
@@ -78,11 +85,6 @@ int Board::Print(){
 	//print out the board UI
 	int choice = 1;
 	PrintSolo();//calls the print function
-	cout<<fRED "*************************"<<endl;
-	cout<<fRED "Current Player: " << ((currentPlayer == WHITE) ? "White(1)" : "Black(2)") << endl;
-	cout<<fRED "Black Pieces: " << score[BLACK] <<endl;
-	cout<<fRED "White Pieces: "<< score[WHITE] <<endl;
-	cout<<"*************************"<<RESET<<endl;
 	for (auto mv : moves){
 		int piece = mv.first;	//piece == 34
 		int ii = piece / 10;// extract "3"
@@ -193,6 +195,7 @@ void Board::applyMoveAI(int key, list<int> flipflop){
 	score[oppositePlayer] -= flipMoves.size();
 // switch the current player, wipe the hash table	
 	pass[currentPlayer] = 0;//set the pass player to 0, no passes here!
+	gameCounter++;
 	currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
 	return;
 	//}
@@ -240,6 +243,7 @@ void Board::applyMove(int mvchoice){
 		score[oppositePlayer] -= flipMoves.size();
 	// switch the current player, wipe the hash table	
 		pass[currentPlayer] = 0;//set the pass player to 0, no passes here!
+		gameCounter++;
 		currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
 		return;
 	}
@@ -247,6 +251,7 @@ void Board::applyMove(int mvchoice){
 		cout << "No moves, player : " << currentPlayer <<"  skipped. " <<endl;
 		pass[currentPlayer] = 1;
 		currentPlayer = (currentPlayer == WHITE) ? BLACK : WHITE;
+		gameCounter++;
 		return;	
 	}	
 }
@@ -362,21 +367,24 @@ void Board::LoadBoard(string pathname){
 	//reset the score to zeroes
 	score[WHITE] = 0;	
 	score[BLACK] = 0;
-
+	gameCounter = 0;
 	for( int ii = 0; ii < BOARDSIZE; ii++){
 		for (int jj = 0; jj < BOARDSIZE; jj++){
 			board[ii][jj] = b_info[ii*8+jj] - 48;//some weird ascii arithmetic
 			if(b_info[ii*8+jj] - 48 == WHITE){
 				score[WHITE]++;		//recalculate scores
+				gameCounter++;
 			}
 			if(b_info[ii*8+jj] - 48 == BLACK){
 				score[BLACK]++;		
+				gameCounter++;
 			}
 		}
 	}
 	currentPlayer = b_info[64] - 48;
 	pass[BLACK] = b_info[65] - 48; 
 	pass[WHITE] = b_info[66] - 48;
+	gameCounter += pass[BLACK] + pass[WHITE];
 }
 /*********************************************************************************************8
 *HUMAN MOVE LOGIC AND AI MOVE LOGIC
@@ -440,7 +448,7 @@ void Board::AIMove(Board &boardgame){
 	int beta = bigNum;
 	OGplayer = currentPlayer;
 
-	for ( int depth = 1; depth < 9; depth++){
+	for ( int depth = 1; depth < 8; depth++){
 		int bestVal = -bigNum;
 		cout <<"Searching at depth: " <<depth<<endl;	
 		clear();
@@ -476,12 +484,14 @@ void Board::AIMove(Board &boardgame){
 		score[currentPlayer] += child.flipMoves.size();
 		score[oppositePlayer] -= child.flipMoves.size();
 		pass[child.currentPlayer] = 0;
+		gameCounter++;
 		currentPlayer = oppositePlayer;
 		return;
 	}
 	if (flipMoves.size() == 0){
 		cout << " The AI has no moves to make: "<< currentPlayer <<" skipped. "<< endl;
 		pass[currentPlayer] = 1;
+		gameCounter++;
 		currentPlayer = (currentPlayer = WHITE) ? BLACK : WHITE;
 		return;
 	}
@@ -529,23 +539,28 @@ pair<int,list<int>> Board::AIv_One(){
 
 
 int HeuristicEval::Heuristic(Board board, int Player){
-	return	simpleBoardWeightHeuristic(board, Player);
+	int B = simpleBoardWeightHeuristic(board, Player);
+	int P = ParityCalc(board, Player);
+	int t = terminalStateCheck(board, Player);
+	int C = Corners(board, Player);
+	
+	return B + 500*P + 1000*t + 700*C; 
 } 		
 
 
 int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 	int score = 0;
-	vector<int> BoardWeight = {	 40, -3,  2,  2,  2,  2, -3,  40,
-								-3, -4, -1, -1, -1, -1, -4, -3,
+	int playerCount = 0;
+	vector<int> BoardWeight = {	 5, -3,  2,  2,  2,  2, -3,  5,
+								-3, -5, -1, -1, -1, -1, -5, -3,
 								 2, -1,  1,  0,  0,  1, -1,  2,
 								 2, -1,  0,  1,  1,  0, -1,  2,
 								 2, -1,  0,  1,  1,  0, -1,  2,
 								 2, -1,  1,  0,  0,  1, -1,  2,
-								-3, -4, -1, -1, -1, -1, -4, -3,
-								 40, -3,  2,  2,  2,  2, -3,  40,
+								-3, -5, -1, -1, -1, -1, -5, -3,
+								 5, -3,  2,  2,  2,  2, -3,  5,
 						      };
-	//if you reach the corner, then the quadrant is no longer worth much
-	/*
+	//if you reach the corner, then its quadrant is no longer worth much
 	if (board.board[0][0] != 0){
 		BoardWeight[1] = 0;
 		BoardWeight[2] = 0;
@@ -605,17 +620,117 @@ int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 		BoardWeight[61] = 0;
 		BoardWeight[62] = 0;
 	}
-	*/	
 
 	for( int ii = 0; ii < BOARDSIZE; ii++){
 		for (int jj = 0; jj < BOARDSIZE; jj++){
 			if (board.board[ii][jj] == Player){
 				score += 1000*(BoardWeight[ii*8+jj]) +rand() % 10;// making it such that a board with more pieces is worth more than a board with less pieces?? greedy
+				playerCount++;
 			} 		
 		}
 	}
-	return score;
+	return score + 300*((2*playerCount)/board.gameCounter);
 }
+
+int HeuristicEval::ParityCalc(Board board, int player){	//return the parity score multiplied by a constant
+	int parity;
+	if (board.gameCounter%2 == 0){//if the game is on an even move, whoever is playing has parity advantage
+		if(board.currentPlayer == player){
+			parity = 1;
+		}
+		else{
+			parity = -1;
+		}
+	}
+	else{						//if the game is on an odd move, then the other player has parity advantage
+		if(board.currentPlayer == player){
+			parity = -1;
+		}
+		else{
+			parity = 1;
+		}
+	}
+	return parity;
+}
+
+int HeuristicEval::terminalStateCheck(Board board, int player){// HIGH PRIORITY
+	int otherPlayer = (player == WHITE) ? BLACK : WHITE;
+	if (board.moves.size() == 0 || board.pieceCounter == 64){
+		if ( board.score[WHITE] > board.score[BLACK]){
+			if ( player == WHITE){
+				return 1;
+			}
+			else{//player is BLACK
+				return -1;
+			}
+		}
+		else if (board.score[BLACK] > board.score[WHITE]){
+			if (player ==BLACK){
+				return 1;
+			}	
+			else{
+				return -1; //do not want to lose
+			}
+		}
+		else{//tie
+			return -1;	//do not want a tie
+		}	
+	}
+	else {	// not an end game state
+		return 0;
+	}
+}
+			
+int HeuristicEval::Corners(Board board, int player){ //corner control is good to have
+	int oplayer = (player == WHITE) ? BLACK : WHITE;
+	int pCorners = 0;
+	int oCorners = 0;
+	//topleft 
+	if (board.board[0][0] = player){
+		pCorners++;
+	}	
+	if (board.board[0][0] = oplayer){
+		oCorners++;
+	}
+	//topright	
+	if (board.board[0][7] = player){
+		pCorners++;
+	}	
+	if (board.board[0][7] = oplayer){
+		oCorners++;
+	}
+	//botleft
+	if (board.board[7][0] = player){
+		pCorners++;
+	}	
+	if (board.board[7][0] = oplayer){
+		oCorners++;
+	}
+	//botright
+	if (board.board[7][7] = player){
+		pCorners++;
+	}	
+	if (board.board[7][7] = oplayer){
+		oCorners++;
+	}
+
+
+	if (pCorners > oCorners){
+		return 100* (pCorners - oCorners)/(pCorners+oCorners);
+	}
+	else if (oCorners > pCorners){
+		return -100* (pCorners - oCorners)/(pCorners+oCorners);
+	}
+	else{
+		return 0;
+	}
+}
+
+
+
+
+
+
 
 /**********************************************************************
 *MINIMAX WITH ALPHABETA PRUNING
@@ -641,20 +756,31 @@ pair<int, pair<int, list<int>>> Board::alphaBeta (Board board, int maxDepth, int
 		currentPlayer = (OGplayer == BLACK) ? WHITE : BLACK;
 	}
   
-  moves.clear();
-//	LegalMoves(currentPlayer);
-//	for (auto kv : moves){//just want to print out the legal moves
-//		cout<<"Legal move = ";
-//		list<int> flipp = kv.second;
-//		cout<< alphabet[kv.first/10]<<kv.first%10<< " ";
-//		for (auto mv : flipp){
-//			cout<<" -"<<alphabet[mv/10]<<mv%10;
-//		}
-//	cout<< endl;
-//	}	
+	moves.clear();
+	
 	Board child = board; 
 
 	child.LegalMoves(child.currentPlayer);// generates the legal moves for the board inside this function and populates the moves hashmap
+	
+	if (child.moves.empty()){//if there is a no move sequenct
+		moves.clear();
+		if(MaxingPlayer){
+			child.currentPlayer = (child.OGplayer == BLACK) ? WHITE : BLACK;
+			child.LegalMoves(child.currentPlayer);
+		}
+		else{
+			child.LegalMoves(child.currentPlayer);
+		}
+		if (child.moves.size() > 0){
+			moveScore = alphaBeta(child, maxDepth, currentDepth -1, alpha, beta, !MaxingPlayer, OGplayer);
+			return moveScore;
+		}
+		else{
+			bestValue = HeuristicEval::Heuristic(board,OGplayer);
+			moveScore.first = bestValue;
+			return moveScore;
+		}
+	}
 
 	pair<int,pair<int, list<int>>> tempmoveScore;
 
