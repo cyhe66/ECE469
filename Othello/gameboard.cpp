@@ -468,7 +468,7 @@ void Board::AIMove(Board &boardgame){
 	OGplayer = currentPlayer;
 	int depth;
 	cout<<"Searched to depth: ";
-	for (depth = 1; depth < 50; depth++){//assuming depth 50 is never achievable
+	for (depth = 1; depth < 64-boardgame.gameCounter; depth++){//assuming depth 50 is never achievable
 		int bestVal = -bigNum;
 		clear();
 		flipMoves.clear();		
