@@ -582,14 +582,14 @@ int HeuristicEval::Heuristic(Board board, int Player){
 int HeuristicEval::simpleBoardWeightHeuristic(Board board, int Player){
 	int score = 0;
 	int playerCount = 0;
-	vector<int> BoardWeight = {	 5, -3,  2,  2,  2,  2, -3,  5,
-								-3, -5, -1, -1, -1, -1, -5, -3,
+	vector<int> BoardWeight = {	 4, -3,  2,  2,  2,  2, -3,  4,
+								-3, -5, -1, -1, -1, -1, -4, -3,
 								 2, -1,  1,  0,  0,  1, -1,  2,
 								 2, -1,  0,  1,  1,  0, -1,  2,
 								 2, -1,  0,  1,  1,  0, -1,  2,
 								 2, -1,  1,  0,  0,  1, -1,  2,
-								-3, -5, -1, -1, -1, -1, -5, -3,
-								 5, -3,  2,  2,  2,  2, -3,  5,
+								-3, -4, -1, -1, -1, -1, -4, -3,
+								 4, -3,  2,  2,  2,  2, -3,  4,
 						      };
 	//if you reach the corner, then its quadrant is no longer worth much
 	if (board.board[0][0] != 0){
