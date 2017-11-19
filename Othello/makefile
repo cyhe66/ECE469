@@ -1,7 +1,7 @@
-.PHONY: run clean
 CXX=g++
 CFLAGS = -std=c++11
 
+.PHONY: run clean
 
 all: othello
 
@@ -15,7 +15,7 @@ gameboard.o: gameboard.cpp board.h
 		${CXX} ${CFLAGS} -c $<
 
 run: othello
-	./othello
+		./othello
 
 clean:
-		rm  *.o
+		rm  *.o othello
